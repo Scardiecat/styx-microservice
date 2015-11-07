@@ -1,4 +1,4 @@
-package org.scardiecat.microservice
+package org.scardiecat.styx.microservice
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.io.IO

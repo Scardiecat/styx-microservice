@@ -1,4 +1,4 @@
-package org.scardiecat.microservice.CommonMarshallers
+package org.scardiecat.styx.microservice.marshalling
 
 import spray.http._
 import spray.httpx.marshalling.{ToResponseMarshallingContext, ToResponseMarshaller}

@@ -1,4 +1,4 @@
-package org.scardiecat.microservice
+package org.scardiecat.styx.microservice
 
 import akka.actor.Props
 import spray.routing.{RouteConcatenation, HttpServiceActor, Route}
