@@ -3,7 +3,7 @@ import NativePackagerHelper._
 
 val commonSettings = Seq(
   organization := "org.scrdiecat",
-  version := "0.0.1-SNAPSHOT",
+  version := "0.0.1,
   scalaVersion := "2.11.7",
 
   // build info
