@@ -1,4 +1,4 @@
-package org.scardiecat.microservice.styx.microservice.marshalling
+package org.scardiecat.styx.microservice.marshalling
 
 import java.text.SimpleDateFormat
 import java.util.{UUID, Date}
