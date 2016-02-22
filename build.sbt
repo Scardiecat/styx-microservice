@@ -1,26 +1,34 @@
-import NativePackagerHelper._
-
+enablePlugins(GitVersioning)
 
 val commonSettings = Seq(
   organization := "org.scardiecat",
-  version := "0.0.3",
+  git.baseVersion := "0.0.3",
+  git.gitTagToVersionNumber := { tag: String =>
+    if(tag matches "[0-9]+\\..*") Some(tag)
+    else None
+  },
+  git.useGitDescribe := true,
   scalaVersion := "2.11.7",
+
+  scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:existentials", "-language:higherKinds"),
 
   // build info
   buildInfoPackage := "meta",
   buildInfoOptions += BuildInfoOption.ToJson,
+  buildInfoOptions += BuildInfoOption.BuildTime,
   buildInfoKeys := Seq[BuildInfoKey](
-    name, version, scalaVersion,
-    "sbtNativePackager" -> "1.0.0"
-  )
+    name, version, scalaVersion
+  ),
+  publishMavenStyle := true,
+  bintrayReleaseOnPublish in ThisBuild := true,
+  bintrayPackageLabels := Seq("styx", "scala", "Akka"),
+  licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 )
 
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin, JavaAppPackaging)
   .settings(
     name := """styx-microservice""",
-    publishMavenStyle := false,
     libraryDependencies ++= Dependencies.spray,
     commonSettings
   )
-

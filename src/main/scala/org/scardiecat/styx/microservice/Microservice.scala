@@ -2,7 +2,10 @@ package org.scardiecat.styx.microservice
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.io.IO
-import com.typesafe.config.{ConfigFactory, Config}
+import com.google.inject.{Injector, Module, Guice}
+import com.typesafe.config.{Config}
+import net.codingwell.scalaguice.InjectorExtensions._
+import org.scardiecat.styx.akkaguice.AkkaModule
 import spray.can.Http
 import spray.routing.Route
 
@@ -22,25 +25,23 @@ trait Microservice {
   def actorSystemName: String
 
   /**
-    * Starts up the Microservice ActorSystem, binding Akka remoting to ``port`` and exposing all
+    * Starts up the Microservice ActorSystem, Exposing all
     * rest services at ``0.0.0.0:restPort``.
-    * @param port the Akka port
     * @param restPort the REST services port
+    * @param guiceModules Injectable GuiceModules
     */
-  final def actorSystemStartUp(port: Int, restPort: Int): Unit = {
+  final def actorSystemStartUp(port: Int, restPort: Int, guiceModules: Seq[Module]= Seq()): Unit = {
     // Create an Akka system
-    val finalConfig =
-      ConfigFactory.parseString(
-        s"""
-           |akka.remote.netty.tcp.port=$port
-         """.stripMargin).
-        withFallback(config)
+    val confModule = new ConfigModule(config, actorSystemName)
+    val akkaModule = new AkkaModule()
 
-    implicit val system = ActorSystem(actorSystemName, finalConfig)
+    val injector: Injector = Guice.createInjector((guiceModules :+ confModule :+ akkaModule):_*)
+
+    implicit val system = injector.instance[ActorSystem]
 
     val transport = IO(Http)
 
-    val microserviceRoutes = getMicroserviceRoutes(system,system.dispatcher)
+    val microserviceRoutes = getMicroserviceRoutes(system, system.dispatcher)
 
     startupHttpService(transport, restPort, microserviceRoutes)
   }
@@ -50,7 +51,8 @@ trait Microservice {
     * Implementations must return sequence of Routes
     * @return the Routes
     */
-  def getMicroserviceRoutes(implicit system:ActorSystem, ec:ExecutionContext): Seq[Route]
+  def getMicroserviceRoutes(implicit system: ActorSystem, ec: ExecutionContext): Seq[Route]
+
   /**
     * Startup the REST API handler
     * @param system the (booted) ActorSystem
